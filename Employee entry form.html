@@ -350,11 +350,96 @@ window.onload = function() {
         if (data.submitted && !isHR) {
           // Already submitted and not HR — show lock screen
           showLockScreen(empCode);
-        } else if (data.doj) {
-          document.getElementById('pre_doj').value = formatDate(data.doj);
-          document.getElementById('pre_dept').value = data.dept;
-          document.getElementById('pre_desig').value = data.desig;
-          document.getElementById('pre_mgr').value = data.mgr;
+        } else if (data.submitted && isHR) {
+          // HR mode on submitted form — allow editing, prefill all fields
+          sessionStorage.removeItem('hr_access'); // Clear after loading
+          document.getElementById('pre_doj').value = formatDate(data.DateOfJoining);
+          document.getElementById('pre_dept').value = data.Department || '';
+          document.getElementById('pre_desig').value = data.Designation || '';
+          document.getElementById('pre_mgr').value = data.ReportingManager || '';
+
+          function setVal(id, val) { const el = document.getElementById(id); if (el && val) el.value = val; }
+          function setDate(id, val) {
+            const el = document.getElementById(id);
+            if (el && val) {
+              const d = new Date(val);
+              if (!isNaN(d)) { el.value = d.toISOString().split('T')[0]; }
+              else { const parts = val.split('/'); if (parts.length === 3) el.value = parts[2] + '-' + parts[1].padStart(2,'0') + '-' + parts[0].padStart(2,'0'); }
+            }
+          }
+          setVal('prefix', data.Prefix); setVal('fname', data.FirstName); setVal('mname', data.MiddleName); setVal('lname', data.LastName);
+          setDate('dob', data.DOB); setVal('gender', data.Gender); setVal('blood', data.BloodGroup); setVal('nationality', data.Nationality);
+          setVal('mobile', data.MobileNumber); setVal('email', data.PersonalEmail); setVal('marital', data.MaritalStatus); setVal('education', data.EducationStream);
+          setVal('addr_pres', data.PresentAddress); setVal('addr_perm', data.PermanentAddress);
+          setVal('pan', data.PANCard); setVal('aadhar', data.AadharCard); setVal('uan', data.UANNumber);
+          setVal('bank', data.BankName); setVal('branch', data.BranchAddress); setVal('acc_num', data.BankAccNumber); setVal('ifsc', data.IFSCCode);
+          setVal('m_name', data.MothersName); setDate('m_dob', data.MothersDOB); setVal('f_name', data.FathersName); setDate('f_dob', data.FathersDOB);
+          setVal('s_name', data.SpouseName); setDate('s_dob', data.SpouseDOB);
+          setVal('c1_name', data.Child1Name); setDate('c1_dob', data.Child1DOB); setVal('c2_name', data.Child2Name); setDate('c2_dob', data.Child2DOB);
+          setVal('e_name', data.EmergencyContactName); setVal('e_rel', data.EmergencyRelation); setVal('e_mob', data.EmergencyContactNumber);
+        } else if (data.DateOfJoining) {
+          // Prefill job details
+          document.getElementById('pre_doj').value = formatDate(data.DateOfJoining);
+          document.getElementById('pre_dept').value = data.Department || '';
+          document.getElementById('pre_desig').value = data.Designation || '';
+          document.getElementById('pre_mgr').value = data.ReportingManager || '';
+
+          // Prefill personal details if they exist
+          function setVal(id, val) {
+            const el = document.getElementById(id);
+            if (el && val) el.value = val;
+          }
+          function setDate(id, val) {
+            const el = document.getElementById(id);
+            if (el && val) {
+              // Convert DD/MM/YYYY or other formats to YYYY-MM-DD for date input
+              const d = new Date(val);
+              if (!isNaN(d)) {
+                el.value = d.toISOString().split('T')[0];
+              } else {
+                // Try DD/MM/YYYY
+                const parts = val.split('/');
+                if (parts.length === 3) {
+                  el.value = parts[2] + '-' + parts[1].padStart(2,'0') + '-' + parts[0].padStart(2,'0');
+                }
+              }
+            }
+          }
+
+          setVal('prefix', data.Prefix);
+          setVal('fname', data.FirstName);
+          setVal('mname', data.MiddleName);
+          setVal('lname', data.LastName);
+          setDate('dob', data.DOB);
+          setVal('gender', data.Gender);
+          setVal('blood', data.BloodGroup);
+          setVal('nationality', data.Nationality);
+          setVal('mobile', data.MobileNumber);
+          setVal('email', data.PersonalEmail);
+          setVal('marital', data.MaritalStatus);
+          setVal('education', data.EducationStream);
+          setVal('addr_pres', data.PresentAddress);
+          setVal('addr_perm', data.PermanentAddress);
+          setVal('pan', data.PANCard);
+          setVal('aadhar', data.AadharCard);
+          setVal('uan', data.UANNumber);
+          setVal('bank', data.BankName);
+          setVal('branch', data.BranchAddress);
+          setVal('acc_num', data.BankAccNumber);
+          setVal('ifsc', data.IFSCCode);
+          setVal('m_name', data.MothersName);
+          setDate('m_dob', data.MothersDOB);
+          setVal('f_name', data.FathersName);
+          setDate('f_dob', data.FathersDOB);
+          setVal('s_name', data.SpouseName);
+          setDate('s_dob', data.SpouseDOB);
+          setVal('c1_name', data.Child1Name);
+          setDate('c1_dob', data.Child1DOB);
+          setVal('c2_name', data.Child2Name);
+          setDate('c2_dob', data.Child2DOB);
+          setVal('e_name', data.EmergencyContactName);
+          setVal('e_rel', data.EmergencyRelation);
+          setVal('e_mob', data.EmergencyContactNumber);
         } else {
           document.getElementById('pre_empcode').value = "NOT FOUND";
         }
