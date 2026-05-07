@@ -255,12 +255,12 @@
 <div class="footer">
   <div class="footer-inner">
     <button class="btn btn-back" id="btnBack" onclick="changeTab(-1)" style="visibility:hidden">Back</button>
-    <button class="btn btn-next" id="btnNext" onclick="changeTab(1)">Next Step</button>
+    <div style="display:flex;gap:10px;align-items:center"><button class="btn" id="btnDelete" onclick="confirmDelete()" style="display:none;background:#FEE2E2;color:#991B1B;border-color:#FCA5A5;font-size:13px">&#128465; Reset Form</button><button class="btn btn-next" id="btnNext" onclick="changeTab(1)">Next Step</button></div>
   </div>
 </div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw8A3aTz4NqlBhAol3nnmQFt8qULaJsEg1HkbGQgNofuwRfZi62mJfrJ5I1ICTuxDISCQ/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwc0_i_sgsvdWyOZgNLfrRVSVuyOxGN-JjlW6NdBTF5Gp95AtqtARY8v6apNRDHLZ5pGA/exec';
 
 function formatDate(raw) {
   if (!raw) return '';
@@ -339,6 +339,8 @@ window.onload = function() {
       const badge = document.createElement('div');
       badge.innerHTML = '<span style="background:#EEF0FB;color:#434B84;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:0.04em;">🔐 HR EDIT MODE</span>';
       hdrContainer.appendChild(badge);
+      const delBtn = document.getElementById('btnDelete');
+      if (delBtn) delBtn.style.display = 'inline-flex';
     }
   }
 
@@ -594,6 +596,29 @@ function submitToSheet() {
     btn.disabled = false;
     btn.innerText = '✓ Submit Form';
     alert("Submission failed. Please try again or contact HR.");
+  });
+}
+
+function confirmDelete() {
+  const empCode = f('pre_empcode');
+  if (!empCode || empCode === 'LOADING...' || empCode === 'NOT FOUND') return;
+  const confirmed = confirm('Are you sure you want to RESET the form for ' + empCode + '? This will clear all submitted personal data and unlock the form for resubmission. Job details will be kept intact.');
+  if (!confirmed) return;
+  const btn = document.getElementById('btnDelete');
+  btn.innerText = 'Resetting...';
+  btn.disabled = true;
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    body: JSON.stringify({ action: 'RESET', empCode: empCode })
+  }).then(() => {
+    alert('Form for ' + empCode + ' has been reset! The employee can now resubmit using the same link.');
+    sessionStorage.removeItem('hr_access');
+    location.reload();
+  }).catch(() => {
+    btn.disabled = false;
+    btn.innerText = 'Reset Form';
+    alert('Reset failed. Please try again.');
   });
 }
 </script>
